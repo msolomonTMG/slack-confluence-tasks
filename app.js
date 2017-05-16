@@ -3,7 +3,9 @@
 const
   bodyParser = require('body-parser'),
   express = require('express'),
+  exphbs = require('express-handlebars'),
   user = require('./user'),
+  slackbot = require('./slackbot'),
   confluence = require('./confluence'),
   mongoose = require('mongoose'),
   MONGO_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/mongo_test";
@@ -25,8 +27,27 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+
 app.get('/', function(req, res) {
-  return res.sendStatus(200)
+  res.render('signup');
+})
+
+app.get('/slack', function(req, res) {
+  slackbot.postMessageToUser('mike', 'this is a test').then(success => {
+    res.send(200)
+  })
+})
+
+app.get('/full', function(req, res) {
+  user.getBySlackUsername('mike').then(thisUser => {
+    confluence.getTasks(thisUser.confluenceCredentials).then(tasks => {
+      slackbot.sendTasksToUser('mike', tasks).then(success => {
+        res.send(200)
+      })
+    })
+  })
 })
 
 app.get('/test', function(req, res) {
@@ -43,11 +64,23 @@ app.post('/user/create', function(req, res) {
     confluenceCredentials: new Buffer(`${req.body.confluence.username}:${req.body.confluence.password}`).toString('base64'),
     slackUsername: req.body.slack.username
   }
-  console.log('NEW USER', newUser)
-  user.create(newUser).then(createdUser => {
-    return res.sendStatus(201)
+  console.log(newUser)
+  confluence.testCredentials(newUser.confluenceCredentials).then(success => {
+    if (!success) {
+      return res.sendStatus(403)
+    } else {
+      user.create(newUser).then(createdUser => {
+        return res.sendStatus(201)
+      }).catch(err => {
+        return res.sendStatus(422)
+      })
+    }
   }).catch(err => {
-    return res.sendStatus(422)
+    res.render('signup', {
+      error: {
+        msg: 'There was an error signing up. Check your Confluence credentials.'
+      }
+    });
   })
 })
 

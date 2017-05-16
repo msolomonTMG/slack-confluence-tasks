@@ -11,7 +11,9 @@
   "dependencies": {
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
+    "express-handlebars": "^3.0.0",
     "mongoose": "^4.9.9",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "slackbots": "^1.0.2"
   }
 }

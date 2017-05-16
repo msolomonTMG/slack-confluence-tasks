@@ -1,0 +1,33 @@
+<div class="container" style="padding-top:50px">
+  <div class="row">
+    <div class="col-sm-12 col-md-6 offset-md-3">
+      <form method="post" action="/user/create">
+        {{#if error}}
+          <div class="alert alert-danger" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Oh snap!</strong> {{error.msg}}
+          </div>
+        {{/if}}
+        <div class="form-group">
+          <label for="slackUsername">Slack Username</label>
+          <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+            <div class="input-group-addon">@</div>
+            <input type="text" class="form-control" name="slack[username]" aria-describedby="slackUsername">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="confluenceUsername">Confluence Username</label>
+            <input type="text" class="form-control" name="confluence[username]" aria-describedby="confluenceUsernameHelp">
+          <small id="confluenceUsernameHelp" class="form-text text-muted">Your Confluence username is not your email address</small>
+        </div>
+        <div class="form-group">
+          <label for="confluencePassword">Confluence Password</label>
+          <input type="password" class="form-control" name="confluence[password]">
+        </div>
+        <button class="btn btn-primary float-right">Save</button>
+      </form>
+    </div>
+  </div>
+</div>

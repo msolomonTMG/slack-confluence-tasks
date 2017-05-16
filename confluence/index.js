@@ -1,5 +1,6 @@
 var confluence = require('./confluence')
 
 module.exports = {
-  getTasks: confluence.getTasks
+  getTasks: confluence.getTasks,
+  testCredentials: confluence.testCredentials
 }
