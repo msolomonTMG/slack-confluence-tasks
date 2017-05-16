@@ -28,6 +28,15 @@ var functions = {
     return new Promise(function(resolve, reject) {
       helpers.makeConfluenceRequest(credentials, 'rest/mywork/latest/task')
         .then(tasks => {
+          let openTasks = []
+          tasks.forEach((task, index) => {
+            if (task.status == "TODO") { //only return open tasks
+              openTasks.push(task)
+            }
+            if (index + 1 == tasks.length) {
+              return resolve(openTasks)
+            }
+          })
           return resolve(tasks)
         })
         .catch(err => {
