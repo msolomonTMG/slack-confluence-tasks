@@ -25,7 +25,7 @@ user.getAll().then(users => {
   users.forEach(thisUser => {
     confluence.getTasks(thisUser.confluenceCredentials).then(tasks => {
       slackbot.sendTasksToUser(thisUser.slackUsername, tasks).then(success => {
-        done();
+        return true
       })
     })
   })
