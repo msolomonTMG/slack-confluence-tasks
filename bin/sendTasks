@@ -1,1 +1,8 @@
 #!/usr/bin/env node
+
+var dayOfWeek = new Date().getDay();
+var isWeekend = (dayOfWeek == 6) || (dayOfWeek == 0);    // 6 = Saturday, 0 = Sunday
+
+if (isWeekend) {
+  return false // do not run this on the weekends
+}
