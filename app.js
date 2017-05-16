@@ -34,6 +34,18 @@ app.get('/', function(req, res) {
   res.render('signup');
 })
 
+app.get('/circle', function(req, res) {
+  user.getAll().then(users => {
+    users.forEach(thisUser => {
+      confluence.getTasks(thisUser.confluenceCredentials).then(tasks => {
+        slackbot.sendTasksToUser(thisUser.slackUsername, tasks).then(success => {
+          res.send(200)
+        })
+      })
+    })
+  })
+})
+
 app.get('/slack', function(req, res) {
   slackbot.postMessageToUser('mike', 'this is a test').then(success => {
     res.send(200)
