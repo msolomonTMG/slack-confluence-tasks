@@ -35,7 +35,11 @@ bot.on('message', function(message) {
       case 'settings':
         helpers.getUsernameFromId(message.user).then(username => {
           user.getBySlackUsername(username).then(user => {
-            functions.sendSettingsToUser(user) //we need the user to send random string query param
+            if (!user) {
+              bot.postMessageToUser(username, `:chipmunk: Slow down, Eager McBeaver! You need to signup first. Signup by <${APP_URL}signup|clicking here>`)
+            } else {
+              functions.sendSettingsToUser(user) //we need the user to send random string query param
+            }
           })
         })
       break;
