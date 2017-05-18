@@ -2,5 +2,6 @@ var slackbot = require('./slackbot')
 
 module.exports = {
   postMessageToUser: slackbot.postMessageToUser,
-  sendTasksToUser: slackbot.sendTasksToUser
+  sendTasksToUser: slackbot.sendTasksToUser,
+  sendSettingsToUser: slackbot.sendSettingsToUser
 }

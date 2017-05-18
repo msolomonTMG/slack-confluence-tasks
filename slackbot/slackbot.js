@@ -1,11 +1,58 @@
-var SlackBot = require('slackbots');
+const
+  SlackBot = require('slackbots'),
+  user = require('../user'),
+  confluence = require('../confluence'),
+  APP_URL = process.env.APP_URL || `http://localhost:5000/`;
 
 var bot = new SlackBot({
   token: process.env.SLACKBOT_TOKEN,
   name: 'Confluence'
 });
 
+bot.on('message', function(message) {
+  // all ingoing events https://api.slack.com/rtm
+  if (message.type == 'message' && message.user != null) {
+    switch(message.text) {
+      case 'tasks':
+      helpers.getUsernameFromId(message.user).then(username => {
+        user.getBySlackUsername(username).then(user => {
+          confluence.getTasks(user.confluenceCredentials).then(tasks => {
+            functions.sendTasksToUser(username, tasks) //we need the user to send random string query param
+          })
+        })
+      })
+    break;
+      case 'settings':
+        helpers.getUsernameFromId(message.user).then(username => {
+          user.getBySlackUsername(username).then(user => {
+            functions.sendSettingsToUser(user) //we need the user to send random string query param
+          })
+        })
+      break;
+      default:
+        helpers.getUsernameFromId(message.user).then(username => {
+          let response = ':wave: I can only do a few things right now. Say `settings` to adjust your settings or say `tasks` to view your open Confluence tasks. I plan on getting smarter eventually!'
+          bot.postMessageToUser(username, response).fail(function(data) {
+            //data = { ok: false, error: 'user_not_found' }
+            console.log(data)
+          })
+        })
+    }
+  }
+});
+
 var helpers = {
+  getUsernameFromId: function(id) {
+    return new Promise(function(resolve, reject) {
+      bot.getUsers().then(data => {
+        data.members.forEach((user, index) => {
+          if (user.id == id) {
+            return resolve(user.name)
+          }
+        })
+      })
+    });
+  },
   formatTasks: function(tasks) {
     return new Promise(function(resolve, reject) {
       let formattedTasks = []
@@ -74,7 +121,15 @@ var functions = {
       });
     });
   },
+  sendSettingsToUser: function(user) {
+    return new Promise(function(resolve, reject) {
+      bot.postMessageToUser(user.slackUsername, `:hammer_and_wrench: <${APP_URL}settings?slackUsername=${user.slackUsername}&rs=${user.randomString}| Click here> to adjust your settings`, function(data) {
+        return resolve(data)
+      })
+    });
+  },
   sendTasksToUser: function(username, tasks) {
+    console.log('SENDING TASKS')
     return new Promise(function(resolve, reject) {
       helpers.formatTasks(tasks).then(formattedTasks => {
 

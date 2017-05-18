@@ -2,12 +2,33 @@ var mongoose = require('mongoose')
 
 var userSchema = new mongoose.Schema({
   confluenceCredentials: String,
-  slackUsername: String
+  slackUsername: String,
+  randomString: String
 });
 
 var User = mongoose.model('Users', userSchema);
 
+var helpers = {
+  createRandomString: function() {
+    let randomString = "";
+    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const length = 20;
+
+    for( let i=0; i < length; i++ )
+        randomString += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return randomString;
+  }
+}
+
 var functions = {
+  deleteAll: function() {
+    return new Promise(function(resolve, reject) {
+      User.remove({},function(success) {
+        return resolve(success)
+      })
+    });
+  },
   create: function(userObj) {
     console.log('GOT USER OBJ', userObj)
     return new Promise(function (resolve, reject) {
@@ -20,8 +41,10 @@ var functions = {
       } else {
         newUser = new User ({
           confluenceCredentials: userObj.confluenceCredentials,
-          slackUsername: userObj.slackUsername
+          slackUsername: userObj.slackUsername,
+          randomString: helpers.createRandomString()
         });
+        console.log(newUser)
         newUser.save(function (err, user) {
           if (err) {
             return reject(err)

@@ -5,5 +5,5 @@ module.exports = {
   getBySlackUsername: user.getBySlackUsername,
   getAll: user.getAll,
   update: user.update,
-
+  deleteAll: user.deleteAll
 }

@@ -20,7 +20,7 @@ mongoose.connect(MONGO_URI, function (err, res) {
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
-app.use('/settings', express.static('public'))
+//app.use('/settings', express.static('public'))
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -34,13 +34,32 @@ app.get('/', function(req, res) {
   res.render('signup');
 })
 
+app.get('/deleteall', function(req, res) {
+  user.deleteAll().then(success => {
+    console.log(success)
+    res.send(200)
+  })
+})
+
+app.get('/send/settings', function(req, res) {
+  user.getAll().then(users => {
+    users.forEach(thisUser => {
+      slackbot.sendSettingsToUser(thisUser).then(success => {
+        res.send(200)
+      })
+    })
+  })
+})
+
 app.get('/circle', function(req, res) {
   user.getAll().then(users => {
     users.forEach(thisUser => {
       confluence.getTasks(thisUser.confluenceCredentials).then(tasks => {
-        slackbot.sendTasksToUser(thisUser.slackUsername, tasks).then(success => {
-          res.send(200)
-        })
+        if (tasks.length > 0) {
+          slackbot.sendTasksToUser(thisUser.slackUsername, tasks).then(success => {
+            res.send(200)
+          })
+        }
       })
     })
   })
@@ -63,11 +82,33 @@ app.get('/full', function(req, res) {
 })
 
 app.get('/test', function(req, res) {
-  user.getBySlackUsername('mike.solomon').then(user => {
+  user.getBySlackUsername('mike').then(user => {
     console.log('found user', user)
     confluence.getTasks(user.confluenceCredentials).then(tasks => {
       console.log('found tasks', tasks)
     })
+  })
+})
+
+app.get('/settings', function(req, res) {
+  if (!req.query.slackUsername) {
+    res.send(403)
+  }
+  user.getBySlackUsername(req.query.slackUsername).then(thisUser => {
+    if (!thisUser) {
+      res.send(403)
+      return false
+    }
+    if (thisUser.randomString == req.query.rs) {
+      res.render('settings', {
+        slackUsername: req.query.slackUsername
+      })
+    } else {
+      res.send(403)
+    }
+    // confluence.getTasks(user.confluenceCredentials).then(tasks => {
+    //   console.log('found tasks', tasks)
+    // })
   })
 })
 
