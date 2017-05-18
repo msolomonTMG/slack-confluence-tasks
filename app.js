@@ -113,7 +113,7 @@ app.get('/settings', function(req, res) {
 })
 
 app.post('/msg-wake-up', function(req, res) {
-  if (req.challenge) {
+  if (req.body.challenge) {
     res.send(req.body.challenge)
   } else {
     //wake up!
