@@ -24,7 +24,9 @@ mongoose.connect(MONGO_URI, function (err, res) {
 user.getAll().then(users => {
   users.forEach(thisUser => {
     confluence.getTasks(thisUser.confluenceCredentials).then(tasks => {
-      slackbot.sendTasksToUser(thisUser.slackUsername, tasks)
+      if (tasks.length > 0) {
+        slackbot.sendTasksToUser(thisUser.slackUsername, tasks)  
+      }
     })
   })
 })
