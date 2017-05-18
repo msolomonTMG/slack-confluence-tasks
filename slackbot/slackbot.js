@@ -17,14 +17,18 @@ bot.on('message', function(message) {
       case 'tasks':
       helpers.getUsernameFromId(message.user).then(username => {
         user.getBySlackUsername(username).then(user => {
-          confluence.getTasks(user.confluenceCredentials).then(tasks => {
-            if (tasks.length === 0) {
-              let noTasksMsg = ":thumbsup: No open tasks! You're all caught up!"
-              bot.postMessageToUser(username, noTasksMsg)
-            } else {
-              functions.sendTasksToUser(username, tasks) //we need the user to send random string query param
-            }
-          })
+          if (!user) {
+            bot.postMessageToUser(username, `You need to signup first. Signup by <${APP_URL}signup|clicking here>`)
+          } else {
+            confluence.getTasks(user.confluenceCredentials).then(tasks => {
+              if (tasks.length === 0) {
+                let noTasksMsg = ":thumbsup: No open tasks! You're all caught up!"
+                bot.postMessageToUser(username, noTasksMsg)
+              } else {
+                functions.sendTasksToUser(username, tasks) //we need the user to send random string query param
+              }
+            })
+          }
         })
       })
       break;
