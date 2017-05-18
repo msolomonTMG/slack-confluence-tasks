@@ -123,7 +123,6 @@ app.post('/user/create', function(req, res) {
       return res.sendStatus(403)
     } else {
       user.create(newUser).then(createdUser => {
-        return res.sendStatus(201)
         res.render('settings', {
           slackUsername: createdUser.slackUsername,
           signUpSuccessMsg: 'Signup Successful!'
