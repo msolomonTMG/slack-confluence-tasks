@@ -11,6 +11,14 @@
             <strong>Oh snap!</strong> {{error.msg}}
           </div>
         {{/if}}
+        {{#if signUpSuccessMsg}}
+          <div class="alert alert-success" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>{{signUpSuccessMsg.msg}}</strong> You can go back to Slack now
+          </div>
+        {{/if}}
         <div class="form-group">
           <label for="slackUsername">Slack Username</label>
           <div class="input-group mb-2 mr-sm-2 mb-sm-0">
