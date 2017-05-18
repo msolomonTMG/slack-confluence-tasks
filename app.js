@@ -112,6 +112,15 @@ app.get('/settings', function(req, res) {
   })
 })
 
+app.post('/msg-wake-up', function(req, res) {
+  if (req.challenge) {
+    res.send(req.challenge)
+  } else {
+    //wake up!
+    console.log('Im up!')
+  }
+})
+
 app.post('/user/create', function(req, res) {
   let newUser = {
     confluenceCredentials: new Buffer(`${req.body.confluence.username}:${req.body.confluence.password}`).toString('base64'),
