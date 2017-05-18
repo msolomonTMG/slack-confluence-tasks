@@ -18,7 +18,7 @@ bot.on('message', function(message) {
       helpers.getUsernameFromId(message.user).then(username => {
         user.getBySlackUsername(username).then(user => {
           if (!user) {
-            bot.postMessageToUser(username, `You need to signup first. Signup by <${APP_URL}signup|clicking here>`)
+            bot.postMessageToUser(username, `:chipmunk: Slow down, Eager McBeaver! You need to signup first. Signup by <${APP_URL}signup|clicking here>`)
           } else {
             confluence.getTasks(user.confluenceCredentials).then(tasks => {
               if (tasks.length === 0) {
