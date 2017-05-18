@@ -12,6 +12,7 @@ var bot = new SlackBot({
 bot.on('message', function(message) {
   // all ingoing events https://api.slack.com/rtm
   if (message.type == 'message' && message.user != null) {
+    console.log('got a message', message)
     switch(message.text) {
       case 'tasks':
       helpers.getUsernameFromId(message.user).then(username => {
@@ -19,17 +20,14 @@ bot.on('message', function(message) {
           confluence.getTasks(user.confluenceCredentials).then(tasks => {
             if (tasks.length === 0) {
               let noTasksMsg = ":thumbsup: No open tasks! You're all caught up!"
-              bot.postMessageToUser(username, noTasksMsg).fail(function(data) {
-                //data = { ok: false, error: 'user_not_found' }
-                console.log(data)
-              })
+              bot.postMessageToUser(username, noTasksMsg)
             } else {
               functions.sendTasksToUser(username, tasks) //we need the user to send random string query param
             }
           })
         })
       })
-    break;
+      break;
       case 'settings':
         helpers.getUsernameFromId(message.user).then(username => {
           user.getBySlackUsername(username).then(user => {
@@ -37,7 +35,25 @@ bot.on('message', function(message) {
           })
         })
       break;
+      case 'signup':
+        helpers.getUsernameFromId(message.user).then(username => {
+          user.getBySlackUsername(username).then(user => {
+
+            console.log(user)
+            if (user) {
+              bot.postMessageToUser(username, `You're already signed up!`).then(function() {
+                functions.sendSettingsToUser(user)
+              })
+            } else {
+              console.log('no user')
+              bot.postMessageToUser(username, `Signup by <${APP_URL}signup|clicking here>`)
+            }
+
+          })
+        })
+      break;
       default:
+        console.log('default is happening')
         helpers.getUsernameFromId(message.user).then(username => {
           let response = ':wave: I can only do a few things right now. Say `settings` to adjust your settings or say `tasks` to view your open Confluence tasks. I plan on getting smarter eventually!'
           bot.postMessageToUser(username, response).fail(function(data) {
