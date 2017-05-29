@@ -34,62 +34,6 @@ app.get('/signup', function(req, res) {
   res.render('signup');
 })
 
-app.get('/deleteall', function(req, res) {
-  user.deleteAll().then(success => {
-    console.log(success)
-    res.send(200)
-  })
-})
-
-app.get('/send/settings', function(req, res) {
-  user.getAll().then(users => {
-    users.forEach(thisUser => {
-      slackbot.sendSettingsToUser(thisUser).then(success => {
-        res.send(200)
-      })
-    })
-  })
-})
-
-app.get('/circle', function(req, res) {
-  user.getAll().then(users => {
-    users.forEach(thisUser => {
-      confluence.getTasks(thisUser.confluenceCredentials).then(tasks => {
-        if (tasks.length > 0) {
-          slackbot.sendTasksToUser(thisUser.slackUsername, tasks).then(success => {
-            res.send(200)
-          })
-        }
-      })
-    })
-  })
-})
-
-app.get('/slack', function(req, res) {
-  slackbot.postMessageToUser('mike', 'this is a test').then(success => {
-    res.send(200)
-  })
-})
-
-app.get('/full', function(req, res) {
-  user.getBySlackUsername('mike').then(thisUser => {
-    confluence.getTasks(thisUser.confluenceCredentials).then(tasks => {
-      slackbot.sendTasksToUser('mike', tasks).then(success => {
-        res.send(200)
-      })
-    })
-  })
-})
-
-app.get('/test', function(req, res) {
-  user.getBySlackUsername('mike').then(user => {
-    console.log('found user', user)
-    confluence.getTasks(user.confluenceCredentials).then(tasks => {
-      console.log('found tasks', tasks)
-    })
-  })
-})
-
 app.get('/settings', function(req, res) {
   if (!req.query.slackUsername) {
     res.send(403)
