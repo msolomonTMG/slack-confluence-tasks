@@ -70,7 +70,7 @@ app.post('/user/create', function(req, res) {
   let newUser = {
     confluenceCredentials: new Buffer(`${req.body.confluence.username}:${req.body.confluence.password}`).toString('base64'),
     slackUsername: req.body.slack.username,
-    timeZone: req.body.timezone
+    timeZone: req.body.timeZone
   }
   console.log(newUser)
   confluence.testCredentials(newUser.confluenceCredentials).then(success => {
