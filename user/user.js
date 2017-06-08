@@ -3,7 +3,8 @@ var mongoose = require('mongoose')
 var userSchema = new mongoose.Schema({
   confluenceCredentials: String,
   slackUsername: String,
-  randomString: String
+  randomString: String,
+  timeZone: String
 });
 
 var User = mongoose.model('Users', userSchema);
@@ -32,17 +33,18 @@ var functions = {
   create: function(userObj) {
     console.log('GOT USER OBJ', userObj)
     return new Promise(function (resolve, reject) {
-      if (!userObj.confluenceCredentials || !userObj.slackUsername) {
+      if (!userObj.confluenceCredentials || !userObj.slackUsername || !userObj.timezone) {
         return reject({
           error: {
-            msg: 'User must have confluence credentials and slack username'
+            msg: 'User must have slack username, confluence credentials and timezone set'
           }
         })
       } else {
         newUser = new User ({
           confluenceCredentials: userObj.confluenceCredentials,
           slackUsername: userObj.slackUsername,
-          randomString: helpers.createRandomString()
+          randomString: helpers.createRandomString(),
+          timeZone: userObj.timezone
         });
         console.log(newUser)
         newUser.save(function (err, user) {
