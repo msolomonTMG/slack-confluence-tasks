@@ -66,6 +66,17 @@ app.post('/msg-wake-up', function(req, res) {
   }
 })
 
+// temp route used to set all timezones for users
+app.get('/set-time-zones', function(req, res) {
+  user.getAll().then(users => {
+    users.forEach(thisUser => {
+      user.update(thisUser._id, {
+        timeZone: 'ET'
+      })
+    })
+  })
+})
+
 app.post('/user/create', function(req, res) {
   let newUser = {
     confluenceCredentials: new Buffer(`${req.body.confluence.username}:${req.body.confluence.password}`).toString('base64'),
