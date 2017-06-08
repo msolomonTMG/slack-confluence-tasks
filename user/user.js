@@ -94,6 +94,19 @@ var functions = {
       })
     });
   },
+  getByTimeZone: function(timeZone) {
+    return new Promise(function(resolve, reject) {
+      User.find({
+        timeZone: timeZone
+      }, function(err, users) {
+        if(!err) {
+          return resolve(users)
+        } else {
+          return reject(err)
+        }
+      })
+    });
+  },
   getAll: function() {
     return new Promise(function(resolve, reject) {
       User.find({}, function(err, users) {
