@@ -16,7 +16,7 @@
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
-            <strong>{{signUpSuccessMsg.msg}}</strong> You can go back to Slack now
+            <strong>{{signUpSuccessMsg.msg}} {{timeZoneET}} {{timeZonePT}} {{timeZoneCET}}</strong> You can go back to Slack now
           </div>
         {{/if}}
         <div class="form-group">
@@ -38,19 +38,19 @@
         <div class="form-group">
           <div class="form-check form-check-inline">
             <label class="form-check-label">
-              <input class="form-check-input" type="radio" name="timeZone" id="ET" value="ET">
+              <input class="form-check-input" type="radio" name="timeZone" id="ET" value="ET" {{bindAttr checked="timeZoneET"}}>
               Eastern Time
             </label>
           </div>
           <div class="form-check form-check-inline">
             <label class="form-check-label">
-              <input class="form-check-input" type="radio" name="timeZone" id="PT" value="PT">
+              <input class="form-check-input" type="radio" name="timeZone" id="PT" value="PT" {{bindAttr checked="timeZonePT"}}>
               Pacific Time
             </label>
           </div>
           <div class="form-check form-check-inline disabled">
             <label class="form-check-label">
-              <input class="form-check-input" type="radio" name="timeZone" id="CET" value="CET">
+              <input class="form-check-input" type="radio" name="timeZone" id="CET" value="CET" {{bindAttr checked="timeZoneCET"}}>
               Central European Time
             </label>
           </div>

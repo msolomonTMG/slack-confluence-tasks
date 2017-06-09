@@ -33,7 +33,7 @@ var functions = {
   create: function(userObj) {
     console.log('GOT USER OBJ', userObj)
     return new Promise(function (resolve, reject) {
-      if (!userObj.confluenceCredentials || !userObj.slackUsername || !userObj.timezone) {
+      if (!userObj.confluenceCredentials || !userObj.slackUsername || !userObj.timeZone) {
         return reject({
           error: {
             msg: 'User must have slack username, confluence credentials and timezone set'
@@ -44,7 +44,7 @@ var functions = {
           confluenceCredentials: userObj.confluenceCredentials,
           slackUsername: userObj.slackUsername,
           randomString: helpers.createRandomString(),
-          timeZone: userObj.timezone
+          timeZone: userObj.timeZone
         });
         console.log(newUser)
         newUser.save(function (err, user) {
@@ -100,6 +100,7 @@ var functions = {
         timeZone: timeZone
       }, function(err, users) {
         if(!err) {
+          console.log('GOT THE USERS', users)
           return resolve(users)
         } else {
           return reject(err)

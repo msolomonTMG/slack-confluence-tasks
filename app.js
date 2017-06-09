@@ -66,6 +66,12 @@ app.post('/msg-wake-up', function(req, res) {
   }
 })
 
+app.get('/test', function(req, res) {
+  user.getByTimeZone('ET').then(users => {
+    res.send(users)
+  })
+})
+
 // temp route used to set all timezones for users
 app.get('/set-time-zones', function(req, res) {
   user.getAll().then(users => {
@@ -89,11 +95,31 @@ app.post('/user/create', function(req, res) {
       return res.sendStatus(403)
     } else {
       user.create(newUser).then(createdUser => {
+        console.log('CREATED USER TIMEZONE', createdUser.timeZone)
+        let timeZoneET, timeZonePT, timeZoneCET
+        switch(createdUser.timeZone) {
+          case 'ET':
+            timeZoneET: true
+          break;
+          case 'PT':
+            timeZonePT: true
+          break;
+          case 'CET':
+            timeZoneCET: true
+          break;
+          default:
+            timeZoneET: true
+        }
+        console.log(timeZoneET, timeZonePT, timeZoneCET)
         res.render('settings', {
           slackUsername: createdUser.slackUsername,
+          timeZoneET: timeZoneET,
+          timeZonePT: timeZonePT,
+          timeZoneCET: timeZoneCET,
           signUpSuccessMsg: 'Signup Successful!'
         })
       }).catch(err => {
+        console.log(err)
         return res.sendStatus(422)
       })
     }
