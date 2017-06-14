@@ -99,20 +99,25 @@ app.post('/user/create', function(req, res) {
         let timeZoneET, timeZonePT, timeZoneCET
         switch(createdUser.timeZone) {
           case 'ET':
-            timeZoneET: true
+            timeZoneET = true
           break;
           case 'PT':
-            timeZonePT: true
+            timeZonePT = true
           break;
           case 'CET':
-            timeZoneCET: true
+            timeZoneCET = true
           break;
           default:
-            timeZoneET: true
+            timeZoneET = true
         }
         console.log(timeZoneET, timeZonePT, timeZoneCET)
+        let confluenceUsername = Buffer.from(createdUser.confluenceCredentials, 'base64').toString('ascii').split(':')[0]
+        let confluencePassword = Buffer.from(createdUser.confluenceCredentials, 'base64').toString('ascii').split(':')[1]
+        console.log(confluenceUsername)
         res.render('settings', {
           slackUsername: createdUser.slackUsername,
+          confluenceUsername: confluenceUsername,
+          confluencePassword: confluencePassword,
           timeZoneET: timeZoneET,
           timeZonePT: timeZonePT,
           timeZoneCET: timeZoneCET,

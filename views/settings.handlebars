@@ -16,7 +16,7 @@
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
-            <strong>{{signUpSuccessMsg.msg}} {{timeZoneET}} {{timeZonePT}} {{timeZoneCET}}</strong> You can go back to Slack now
+            <strong>{{signUpSuccessMsg.msg}}</strong> You can go back to Slack now
           </div>
         {{/if}}
         <div class="form-group">
@@ -28,29 +28,29 @@
         </div>
         <div class="form-group">
           <label for="confluenceUsername">Confluence Username</label>
-            <input type="text" class="form-control" name="confluence[username]" aria-describedby="confluenceUsernameHelp">
+            <input type="text" class="form-control" name="confluence[username]" aria-describedby="confluenceUsernameHelp" value="{{{confluenceUsername}}}">
           <small id="confluenceUsernameHelp" class="form-text text-muted">Your Confluence username is not your email address</small>
         </div>
         <div class="form-group">
           <label for="confluencePassword">Confluence Password</label>
-          <input type="password" class="form-control" name="confluence[password]">
+          <input type="password" class="form-control" name="confluence[password]" value="{{{confluencePassword}}}">
         </div>
         <div class="form-group">
           <div class="form-check form-check-inline">
             <label class="form-check-label">
-              <input class="form-check-input" type="radio" name="timeZone" id="ET" value="ET" {{bindAttr checked="timeZoneET"}}>
+              <input class="form-check-input" type="radio" name="timeZone" id="ET" value="ET" {{#if timeZoneET}}checked{{/if}}>
               Eastern Time
             </label>
           </div>
           <div class="form-check form-check-inline">
             <label class="form-check-label">
-              <input class="form-check-input" type="radio" name="timeZone" id="PT" value="PT" {{bindAttr checked="timeZonePT"}}>
+              <input class="form-check-input" type="radio" name="timeZone" id="PT" value="PT" {{#if timeZonePT}}checked{{/if}}>
               Pacific Time
             </label>
           </div>
-          <div class="form-check form-check-inline disabled">
+          <div class="form-check form-check-inline">
             <label class="form-check-label">
-              <input class="form-check-input" type="radio" name="timeZone" id="CET" value="CET" {{bindAttr checked="timeZoneCET"}}>
+              <input class="form-check-input" type="radio" name="timeZone" id="CET" value="CET" {{#if timeZoneCET}}checked{{/if}}>
               Central European Time
             </label>
           </div>
