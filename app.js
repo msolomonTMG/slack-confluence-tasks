@@ -45,15 +45,21 @@ app.get('/settings', function(req, res) {
       return false
     }
     if (thisUser.randomString == req.query.rs) {
-      res.render('settings', {
-        slackUsername: req.query.slackUsername
+      let confluenceUsername = Buffer.from(thisUser.confluenceCredentials, 'base64').toString('ascii').split(':')[0]
+      let confluencePassword = Buffer.from(thisUser.confluenceCredentials, 'base64').toString('ascii').split(':')[1]
+      utilities.formatUserTimeZone(thisUser.timeZone).then(userTimeZone => {
+        res.render('settings', {
+          slackUsername: req.query.slackUsername,
+          confluenceUsername: confluenceUsername,
+          confluencePassword: confluencePassword,
+          timeZoneET: userTimeZone.timeZoneET,
+          timeZonePT: userTimeZone.timeZonePT,
+          timeZoneCET: userTimeZone.timeZoneCET
+        })
       })
     } else {
       res.send(403)
     }
-    // confluence.getTasks(user.confluenceCredentials).then(tasks => {
-    //   console.log('found tasks', tasks)
-    // })
   })
 })
 
@@ -67,15 +73,6 @@ app.post('/msg-wake-up', function(req, res) {
   }
 })
 
-app.get('/test', function(req, res) {
-  user.getAll().then(users => {
-    res.send(users)
-  })
-  // user.getByTimeZone('PT').then(users => {
-  //   res.send(users)
-  // })
-})
-
 // temp route used to set all timezones for users
 app.get('/set-time-zones', function(req, res) {
   user.getAll().then(users => {
@@ -84,12 +81,6 @@ app.get('/set-time-zones', function(req, res) {
         timeZone: 'ET'
       })
     })
-  })
-})
-
-app.get('/delete', function(req, res) {
-  user.deleteAll().then(success => {
-    console.log(success)
   })
 })
 
