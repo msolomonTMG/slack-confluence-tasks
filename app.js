@@ -7,6 +7,7 @@ const
   user = require('./user'),
   slackbot = require('./slackbot'),
   confluence = require('./confluence'),
+  utilities = require('./utilities'),
   mongoose = require('mongoose'),
   MONGO_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/mongo_test";
 
@@ -44,15 +45,21 @@ app.get('/settings', function(req, res) {
       return false
     }
     if (thisUser.randomString == req.query.rs) {
-      res.render('settings', {
-        slackUsername: req.query.slackUsername
+      let confluenceUsername = Buffer.from(thisUser.confluenceCredentials, 'base64').toString('ascii').split(':')[0]
+      let confluencePassword = Buffer.from(thisUser.confluenceCredentials, 'base64').toString('ascii').split(':')[1]
+      utilities.formatUserTimeZone(thisUser.timeZone).then(userTimeZone => {
+        res.render('settings', {
+          slackUsername: req.query.slackUsername,
+          confluenceUsername: confluenceUsername,
+          confluencePassword: confluencePassword,
+          timeZoneET: userTimeZone.timeZoneET,
+          timeZonePT: userTimeZone.timeZonePT,
+          timeZoneCET: userTimeZone.timeZoneCET
+        })
       })
     } else {
       res.send(403)
     }
-    // confluence.getTasks(user.confluenceCredentials).then(tasks => {
-    //   console.log('found tasks', tasks)
-    // })
   })
 })
 
@@ -66,10 +73,49 @@ app.post('/msg-wake-up', function(req, res) {
   }
 })
 
+// temp route used to set all timezones for users
+app.get('/set-time-zones', function(req, res) {
+  user.getAll().then(users => {
+    users.forEach(thisUser => {
+      user.update(thisUser._id, {
+        timeZone: 'ET'
+      })
+    })
+  })
+})
+
+app.post('/user/update', function(req, res) {
+  let updatedUserInfo = {
+    confluenceCredentials: new Buffer(`${req.body.confluence.username}:${req.body.confluence.password}`).toString('base64'),
+    slackUsername: req.body.slack.username,
+    timeZone: req.body.timeZone
+  }
+  user.getBySlackUsername(updatedUserInfo.slackUsername).then(existingUser => {
+    console.log(existingUser)
+    user.update(existingUser._id, updatedUserInfo).then(updatedUser => {
+      console.log(updatedUser)
+      let confluenceUsername = Buffer.from(updatedUser.confluenceCredentials, 'base64').toString('ascii').split(':')[0]
+      let confluencePassword = Buffer.from(updatedUser.confluenceCredentials, 'base64').toString('ascii').split(':')[1]
+      utilities.formatUserTimeZone(updatedUser.timeZone).then(userTimeZone => {
+        res.render('settings', {
+          slackUsername: updatedUser.slackUsername,
+          confluenceUsername: confluenceUsername,
+          confluencePassword: confluencePassword,
+          timeZoneET: userTimeZone.timeZoneET,
+          timeZonePT: userTimeZone.timeZonePT,
+          timeZoneCET: userTimeZone.timeZoneCET,
+          signUpSuccessMsg: 'User Info Updated!'
+        })
+      })
+    })
+  })
+})
+
 app.post('/user/create', function(req, res) {
   let newUser = {
     confluenceCredentials: new Buffer(`${req.body.confluence.username}:${req.body.confluence.password}`).toString('base64'),
-    slackUsername: req.body.slack.username
+    slackUsername: req.body.slack.username,
+    timeZone: req.body.timeZone
   }
   console.log(newUser)
   confluence.testCredentials(newUser.confluenceCredentials).then(success => {
@@ -77,11 +123,21 @@ app.post('/user/create', function(req, res) {
       return res.sendStatus(403)
     } else {
       user.create(newUser).then(createdUser => {
-        res.render('settings', {
-          slackUsername: createdUser.slackUsername,
-          signUpSuccessMsg: 'Signup Successful!'
+        let confluenceUsername = Buffer.from(createdUser.confluenceCredentials, 'base64').toString('ascii').split(':')[0]
+        let confluencePassword = Buffer.from(createdUser.confluenceCredentials, 'base64').toString('ascii').split(':')[1]
+        utilities.formatUserTimeZone(createdUser.timeZone).then(createdUserTimeZone => {
+          res.render('settings', {
+            slackUsername: createdUser.slackUsername,
+            confluenceUsername: confluenceUsername,
+            confluencePassword: confluencePassword,
+            timeZoneET: createdUserTimeZone.timeZoneET,
+            timeZonePT: createdUserTimeZone.timeZonePT,
+            timeZoneCET: createdUserTimeZone.timeZoneCET,
+            signUpSuccessMsg: 'Signup Successful!'
+          })
         })
       }).catch(err => {
+        console.log(err)
         return res.sendStatus(422)
       })
     }

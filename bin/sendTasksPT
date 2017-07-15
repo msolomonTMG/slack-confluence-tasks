@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+const
+  user = require('../user'),
+  slackbot = require('../slackbot'),
+  confluence = require('../confluence'),
+  mongoose = require('mongoose'),
+  MONGO_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/mongo_test";
+
+var dayOfWeek = new Date().getDay();
+var isWeekend = (dayOfWeek == 6) || (dayOfWeek == 0);    // 6 = Saturday, 0 = Sunday
+
+if (isWeekend) {
+  return false // do not run this on the weekends
+}
+
+mongoose.connect(MONGO_URI, function (err, res) {
+  if (err) {
+  console.log ('ERROR connecting to: ' + MONGO_URI + '. ' + err);
+  } else {
+  console.log ('Succeeded connected to: ' + MONGO_URI);
+  }
+});
+
+user.getByTimeZone('PT').then(users => {
+  users.forEach(thisUser => {
+    confluence.getTasks(thisUser.confluenceCredentials).then(tasks => {
+      if (tasks.length > 0) {
+        slackbot.sendTasksToUser(thisUser.slackUsername, tasks)
+      }
+    })
+  })
+})
