@@ -7,6 +7,7 @@ const
   user = require('./user'),
   slackbot = require('./slackbot'),
   confluence = require('./confluence'),
+  utilities = require('./utilities'),
   mongoose = require('mongoose'),
   MONGO_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/mongo_test";
 
@@ -91,7 +92,7 @@ app.get('/delete', function(req, res) {
     console.log(success)
   })
 })
-//e8nqbynlfdjLw5TATYIF
+
 app.post('/user/update', function(req, res) {
   let updatedUserInfo = {
     confluenceCredentials: new Buffer(`${req.body.confluence.username}:${req.body.confluence.password}`).toString('base64'),
@@ -104,28 +105,16 @@ app.post('/user/update', function(req, res) {
       console.log(updatedUser)
       let confluenceUsername = Buffer.from(updatedUser.confluenceCredentials, 'base64').toString('ascii').split(':')[0]
       let confluencePassword = Buffer.from(updatedUser.confluenceCredentials, 'base64').toString('ascii').split(':')[1]
-      let timeZoneET, timeZonePT, timeZoneCET
-      switch(updatedUser.timeZone) {
-        case 'ET':
-          timeZoneET = true
-        break;
-        case 'PT':
-          timeZonePT = true
-        break;
-        case 'CET':
-          timeZoneCET = true
-        break;
-        default:
-          timeZoneET = true
-      }
-      res.render('settings', {
-        slackUsername: updatedUser.slackUsername,
-        confluenceUsername: confluenceUsername,
-        confluencePassword: confluencePassword,
-        timeZoneET: timeZoneET,
-        timeZonePT: timeZonePT,
-        timeZoneCET: timeZoneCET,
-        signUpSuccessMsg: 'User Info Updated!'
+      utilities.formatUserTimeZone(updatedUser.timeZone).then(userTimeZone => {
+        res.render('settings', {
+          slackUsername: updatedUser.slackUsername,
+          confluenceUsername: confluenceUsername,
+          confluencePassword: confluencePassword,
+          timeZoneET: userTimeZone.timeZoneET,
+          timeZonePT: userTimeZone.timeZonePT,
+          timeZoneCET: userTimeZone.timeZoneCET,
+          signUpSuccessMsg: 'User Info Updated!'
+        })
       })
     })
   })
@@ -143,33 +132,18 @@ app.post('/user/create', function(req, res) {
       return res.sendStatus(403)
     } else {
       user.create(newUser).then(createdUser => {
-        console.log('CREATED USER TIMEZONE', createdUser.timeZone)
-        let timeZoneET, timeZonePT, timeZoneCET
-        switch(createdUser.timeZone) {
-          case 'ET':
-            timeZoneET = true
-          break;
-          case 'PT':
-            timeZonePT = true
-          break;
-          case 'CET':
-            timeZoneCET = true
-          break;
-          default:
-            timeZoneET = true
-        }
-        console.log(timeZoneET, timeZonePT, timeZoneCET)
         let confluenceUsername = Buffer.from(createdUser.confluenceCredentials, 'base64').toString('ascii').split(':')[0]
         let confluencePassword = Buffer.from(createdUser.confluenceCredentials, 'base64').toString('ascii').split(':')[1]
-        console.log(confluenceUsername)
-        res.render('settings', {
-          slackUsername: createdUser.slackUsername,
-          confluenceUsername: confluenceUsername,
-          confluencePassword: confluencePassword,
-          timeZoneET: timeZoneET,
-          timeZonePT: timeZonePT,
-          timeZoneCET: timeZoneCET,
-          signUpSuccessMsg: 'Signup Successful!'
+        utilities.formatUserTimeZone(createdUser.timeZone).then(createdUserTimeZone => {
+          res.render('settings', {
+            slackUsername: createdUser.slackUsername,
+            confluenceUsername: confluenceUsername,
+            confluencePassword: confluencePassword,
+            timeZoneET: createdUserTimeZone.timeZoneET,
+            timeZonePT: createdUserTimeZone.timeZonePT,
+            timeZoneCET: createdUserTimeZone.timeZoneCET,
+            signUpSuccessMsg: 'Signup Successful!'
+          })
         })
       }).catch(err => {
         console.log(err)
