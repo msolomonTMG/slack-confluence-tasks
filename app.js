@@ -67,9 +67,12 @@ app.post('/msg-wake-up', function(req, res) {
 })
 
 app.get('/test', function(req, res) {
-  user.getByTimeZone('ET').then(users => {
+  user.getAll().then(users => {
     res.send(users)
   })
+  // user.getByTimeZone('PT').then(users => {
+  //   res.send(users)
+  // })
 })
 
 // temp route used to set all timezones for users
@@ -78,6 +81,51 @@ app.get('/set-time-zones', function(req, res) {
     users.forEach(thisUser => {
       user.update(thisUser._id, {
         timeZone: 'ET'
+      })
+    })
+  })
+})
+
+app.get('/delete', function(req, res) {
+  user.deleteAll().then(success => {
+    console.log(success)
+  })
+})
+//e8nqbynlfdjLw5TATYIF
+app.post('/user/update', function(req, res) {
+  let updatedUserInfo = {
+    confluenceCredentials: new Buffer(`${req.body.confluence.username}:${req.body.confluence.password}`).toString('base64'),
+    slackUsername: req.body.slack.username,
+    timeZone: req.body.timeZone
+  }
+  user.getBySlackUsername(updatedUserInfo.slackUsername).then(existingUser => {
+    console.log(existingUser)
+    user.update(existingUser._id, updatedUserInfo).then(updatedUser => {
+      console.log(updatedUser)
+      let confluenceUsername = Buffer.from(updatedUser.confluenceCredentials, 'base64').toString('ascii').split(':')[0]
+      let confluencePassword = Buffer.from(updatedUser.confluenceCredentials, 'base64').toString('ascii').split(':')[1]
+      let timeZoneET, timeZonePT, timeZoneCET
+      switch(updatedUser.timeZone) {
+        case 'ET':
+          timeZoneET = true
+        break;
+        case 'PT':
+          timeZonePT = true
+        break;
+        case 'CET':
+          timeZoneCET = true
+        break;
+        default:
+          timeZoneET = true
+      }
+      res.render('settings', {
+        slackUsername: updatedUser.slackUsername,
+        confluenceUsername: confluenceUsername,
+        confluencePassword: confluencePassword,
+        timeZoneET: timeZoneET,
+        timeZonePT: timeZonePT,
+        timeZoneCET: timeZoneCET,
+        signUpSuccessMsg: 'User Info Updated!'
       })
     })
   })
