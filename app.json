@@ -13,11 +13,9 @@
     }
   },
   "addons": [
-    "mongolab",
     {
       "plan": "mongolab:sandbox"
     },
-    "scheduler",
     {
       "plan": "scheduler:standard"
     }
