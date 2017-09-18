@@ -1,3 +1,5 @@
+pubkey.pem
+privkey.pem
 .env
 .git
 node_modules
